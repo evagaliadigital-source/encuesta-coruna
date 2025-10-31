@@ -21,7 +21,7 @@ const responses = []
 function calculatePriority(data) {
   const willingness = data.p3 || ''
   const trial = data.p5 || ''
-  const contact = data.p16 || ''
+  const contact = data.p17 || ''
   
   // 🔥 HOT: Alta disposición de pago + Trial inmediato + Contacto urgente
   if ((willingness.includes('40-60€') || willingness.includes('60-100€') || willingness.includes('Más de 100€')) 
@@ -43,11 +43,15 @@ function calculatePriority(data) {
 function generateRecommendation(data, priority) {
   const willingness = data.p3 || ''
   const blocker = data.p4 || ''
-  const socialNeeds = data.p9 || ''
-  const socialNetworks = data.p7 || ''
+  const needs2026 = data.p7 || ''
+  const stockTime = data.p8 || ''
+  const turnosManagement = data.p9 || ''
+  const integralSystem = data.p10 || ''
+  const operationalNeeds = data.p6 || ''
   
   let recommendations = []
   
+  // Recomendaciones MVP (Nivel 1)
   if (willingness.includes('40-60€') || willingness.includes('60-100€')) {
     recommendations.push('Tu peluquería tiene el perfil perfecto para la Agenda Inteligente IA. Con tu volumen de gestión, recuperarías la inversión en menos de 2 meses.')
   }
@@ -60,8 +64,26 @@ function generateRecommendation(data, priority) {
     recommendations.push('La Agenda IA se autofinancia con las horas que te libera. Calcula: 8h/semana × 4 semanas = 32h/mes que recuperas para generar más ingresos.')
   }
   
-  if (socialNeeds === 'Sí, es justo lo que necesito' && socialNetworks && socialNetworks !== 'Ninguna') {
-    recommendations.push('Veo que necesitas ayuda con redes sociales también. Te prepararé una propuesta combinada Agenda + Contenido que te ahorrará aún más tiempo.')
+  // Recomendaciones Nivel 2/3 (Necesidades operativas)
+  if (needs2026.includes('No tenía ni idea') || needs2026.includes('no sé cómo')) {
+    recommendations.push('🚨 URGENTE: Facturación electrónica obligatoria 2026. Te explicaré cómo prepararte sin morir en el intento y cumplir con Hacienda desde tu móvil.')
+  }
+  
+  if (operationalNeeds.includes('Control de stock')) {
+    recommendations.push('📦 Veo que el stock te quita tiempo. El 68% de peluquerías pierden dinero por productos caducados o compras duplicadas. Te mostraré cómo automatizarlo.')
+  }
+  
+  if (turnosManagement.includes('Excel') || turnosManagement.includes('WhatsApp') || turnosManagement.includes('Memoria')) {
+    recommendations.push('👥 La gestión de turnos con Excel/WhatsApp genera caos. Hay solución automática que evita errores de horarios y llamadas persiguiendo empleadas.')
+  }
+  
+  if (integralSystem.includes('Sí, si me ahorra tiempo')) {
+    recommendations.push('💰 Perfecto, porque tengo exactamente eso: sistema integral Agenda + Facturación + Stock + Turnos TODO EN UNO. Te preparo propuesta personalizada.')
+  }
+  
+  const needsCount = (operationalNeeds.match(/,/g) || []).length + 1
+  if (needsCount >= 3) {
+    recommendations.push('🔥 Detectas múltiples dolores operativos. Eres candidata perfecta para Nivel 3 (Gemelo Digital): un clon tuyo en IA que gestiona TODO.')
   }
   
   if (priority === '🔥 HOT') {
@@ -82,13 +104,13 @@ async function sendEmailToEva(data, priority, raffleInfo) {
 
 👤 DATOS DE CONTACTO:
 ───────────────────────
-Nombre: ${data.p10}
-Peluquería: ${data.p11}
-Ciudad: ${data.p14}
-Dirección: ${data.p15 || 'No proporcionada'}
-WhatsApp: ${data.p12}
-Email: ${data.p13}
-Contactar: ${data.p16}
+Nombre: ${data.p11}
+Peluquería: ${data.p12}
+Ciudad: ${data.p15}
+Dirección: ${data.p16 || 'No proporcionada'}
+WhatsApp: ${data.p13}
+Email: ${data.p14}
+Contactar: ${data.p17}
 
 🎯 SORTEO A CORUÑA:
 ───────────────────────
@@ -105,12 +127,13 @@ Número asignado: ${raffleInfo.number || 'N/A'}
 
 PRIORIDAD: ${priority}
 
-💡 INTERESES NIVEL 2/3:
+💡 NECESIDADES OPERATIVAS (Nivel 2/3):
 ───────────────────────
-⏳ Le quita tiempo: ${data.p6}
-📱 Redes que usa: ${data.p7}
-🕐 Tiempo RRSS/semana: ${data.p8}
-🤖 Pagaría contenido IA: ${data.p9}
+⏳ Le quita tiempo/dinero: ${data.p6}
+⚖️ Conoce obligación facturación 2026: ${data.p7}
+📦 Tiempo gestión stock/semana: ${data.p8}
+👥 Gestión turnos empleados: ${data.p9}
+💰 Pagaría sistema integral: ${data.p10}
 
 📋 RECOMENDACIÓN:
 ───────────────────────
@@ -134,7 +157,7 @@ async function sendEmailToParticipant(data, raffleInfo) {
   const recommendation = generateRecommendation(data, calculatePriority(data))
   
   let emailBody = `
-Hola ${data.p10},
+Hola ${data.p11},
 
 ¡Muchas gracias por ayudarme a mejorar la vida de las peluqueras! 🙌
 
@@ -149,6 +172,89 @@ Según tus respuestas:
 
 ${recommendation}
 `.trim()
+  
+  // Añadir bloques personalizados según respuestas
+  const needs2026 = data.p7 || ''
+  const stockNeeds = data.p6 || ''
+  const turnosManagement = data.p9 || ''
+  const integralSystem = data.p10 || ''
+  
+  // Alerta facturación 2026
+  if (needs2026.includes('No tenía ni idea')) {
+    emailBody += `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+⚖️ ALERTA LEGAL IMPORTANTE:
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A partir de 2026, Hacienda obliga a facturar electrónicamente EN TIEMPO REAL.
+Multas desde 150€ por cada factura manual.
+
+En tu consultoría te explicaré:
+→ Cómo prepararte sin morir en el intento
+→ Sistema que lo hace automático desde tu móvil
+→ Cumplimiento legal garantizado
+
+Esto es URGENTE. No esperes al último momento.
+`
+  }
+  
+  // Control de stock
+  if (stockNeeds.includes('Control de stock')) {
+    emailBody += `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 SOBRE TU GESTIÓN DE STOCK:
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Has marcado que el stock te quita tiempo.
+
+Dato brutal: El 68% de peluquerías pierden dinero por:
+→ Productos caducados sin usar
+→ Compras duplicadas (no sabían que tenían)
+→ Rotura de stock en productos estrella
+
+Te mostraré cómo automatizarlo para que nunca más pase.
+`
+  }
+  
+  // Gestión de turnos
+  if (turnosManagement.includes('Excel') || turnosManagement.includes('WhatsApp') || turnosManagement.includes('Memoria')) {
+    emailBody += `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+👥 GESTIÓN DE TURNOS:
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Veo que gestionas horarios con Excel/WhatsApp/memoria.
+
+Esto genera:
+→ Errores de horarios constantes
+→ Empleadas sin saber cuándo trabajan
+→ Tú persiguiendo a gente para cubrir huecos
+
+Hay solución automática. Te la enseño en la consultoría.
+`
+  }
+  
+  // Sistema integral
+  if (integralSystem.includes('Sí, si me ahorra tiempo')) {
+    emailBody += `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 SISTEMA INTEGRAL TODO EN UNO:
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Has dicho que pagarías por un sistema integral.
+Perfecto, porque eso es exactamente lo que tengo:
+
+🎯 Nivel 1: Agenda IA (tu base)
+🎯 Nivel 2: + Facturación + Stock automatizados
+🎯 Nivel 3: + Turnos + Gemelo Digital (clon tuyo IA)
+
+Te preparo propuesta personalizada según tu tamaño.
+`
+  }
   
   // Añadir info del sorteo si participa
   if (raffleInfo.participates) {
@@ -177,7 +283,7 @@ Has entrado en el sorteo de:
 
 📅 PRÓXIMOS PASOS:
 
-Te contactaré ${data.p16} para:
+Te contactaré ${data.p17} para:
 ✅ Darte tu análisis completo (30 min)
 ✅ Mostrarte cómo funciona la Agenda IA
 ✅ Ofrecerte prueba gratis 15 días (sin compromiso)
@@ -209,7 +315,7 @@ app.post('/api/submit-survey', async (c) => {
     const data = await c.req.json()
     
     // Validar campos obligatorios
-    const requiredFields = ['p1', 'p2', 'p3', 'p4', 'p5', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13', 'p14', 'p16']
+    const requiredFields = ['p1', 'p2', 'p3', 'p4', 'p5', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p17']
     for (const field of requiredFields) {
       if (!data[field]) {
         return c.json({ error: `Campo requerido faltante: ${field}` }, 400)
@@ -220,7 +326,7 @@ app.post('/api/submit-survey', async (c) => {
     data.timestamp = new Date().toISOString()
     
     // Verificar si participa en sorteo (A Coruña)
-    const city = (data.p14 || '').toLowerCase()
+    const city = (data.p15 || '').toLowerCase()
     const participatesInRaffle = city.includes('coruña') || city.includes('corunha')
     
     let raffleNumber = null
@@ -667,115 +773,111 @@ app.get('/', (c) => {
                 </div>
             </div>
 
-            <!-- BLOQUE 3: EXPLORACIÓN NIVEL 2/3 -->
+            <!-- BLOQUE 3: EXPLORACIÓN NECESIDADES REALES -->
             <div class="form-section bg-white rounded-xl shadow-lg p-8">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">3</div>
-                    <h2 class="text-2xl font-bold text-gray-800">Otras necesidades</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Tus necesidades operativas</h2>
                 </div>
 
                 <!-- P6 -->
                 <div class="mb-8">
                     <label class="block text-lg font-semibold text-gray-800 mb-4">
-                        Además de la agenda, ¿qué más te QUITA TIEMPO? *
+                        Además de la agenda, ¿qué más te QUITA TIEMPO o DINERO? *
                         <span class="text-sm font-normal text-gray-500">(Puedes marcar varias opciones)</span>
                     </label>
                     <div class="space-y-3">
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_1" name="p6" value="Publicar en redes sociales" class="hidden">
+                            <input type="checkbox" id="p6_1" name="p6" value="Facturación y gestión de tickets/facturas" class="hidden">
                             <label for="p6_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                📱 Publicar en redes sociales
+                                🧾 Facturación y gestión de tickets/facturas
                             </label>
                         </div>
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_2" name="p6" value="Responder mensajes repetitivos de clientes" class="hidden">
+                            <input type="checkbox" id="p6_2" name="p6" value="Control de stock de productos" class="hidden">
                             <label for="p6_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                💬 Responder mensajes repetitivos de clientes
+                                📦 Control de stock de productos
                             </label>
                         </div>
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_3" name="p6" value="Hacer presupuestos" class="hidden">
+                            <input type="checkbox" id="p6_3" name="p6" value="Gestión de horarios y turnos de empleados" class="hidden">
                             <label for="p6_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                💰 Hacer presupuestos
+                                👥 Gestión de horarios y turnos de empleados
                             </label>
                         </div>
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_4" name="p6" value="Enviar recordatorios a clientas" class="hidden">
+                            <input type="checkbox" id="p6_4" name="p6" value="Nóminas y control de horas trabajadas" class="hidden">
                             <label for="p6_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ⏰ Enviar recordatorios a clientas
+                                💰 Nóminas y control de horas trabajadas
                             </label>
                         </div>
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_5" name="p6" value="Gestión de productos/stock" class="hidden">
+                            <input type="checkbox" id="p6_5" name="p6" value="Cálculo de comisiones por servicios" class="hidden">
                             <label for="p6_5" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                📦 Gestión de productos/stock
+                                💵 Cálculo de comisiones por servicios
                             </label>
                         </div>
                         <div class="checkbox-card">
-                            <input type="checkbox" id="p6_6" name="p6" value="Contabilidad y facturas" class="hidden">
+                            <input type="checkbox" id="p6_6" name="p6" value="Cuadrar caja al final del día" class="hidden">
                             <label for="p6_6" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                📊 Contabilidad y facturas
+                                💸 Cuadrar caja al final del día
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- P7 -->
+                <!-- P7 - BOMBA LEGAL 2026 -->
                 <div class="mb-8">
-                    <label class="block text-lg font-semibold text-gray-800 mb-4">
-                        ¿Qué redes sociales usas para tu negocio? *
-                        <span class="text-sm font-normal text-gray-500">(Puedes marcar varias)</span>
-                    </label>
-                    <div class="space-y-3">
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_1" name="p7" value="Instagram" class="hidden">
-                            <label for="p7_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                📸 Instagram
-                            </label>
-                        </div>
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_2" name="p7" value="Facebook" class="hidden">
-                            <label for="p7_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                👥 Facebook
-                            </label>
-                        </div>
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_3" name="p7" value="TikTok" class="hidden">
-                            <label for="p7_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                🎵 TikTok
-                            </label>
-                        </div>
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_4" name="p7" value="LinkedIn" class="hidden">
-                            <label for="p7_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                💼 LinkedIn
-                            </label>
-                        </div>
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_5" name="p7" value="Ninguna" class="hidden">
-                            <label for="p7_5" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ❌ Ninguna
-                            </label>
-                        </div>
-                        <div class="checkbox-card">
-                            <input type="checkbox" id="p7_6" name="p7" value="Todas, pero no tengo tiempo de gestionarlas" class="hidden">
-                            <label for="p7_6" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                😓 Todas, pero no tengo tiempo de gestionarlas
-                            </label>
+                    <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl">⚖️</div>
+                            <div>
+                                <h4 class="font-bold text-red-800 mb-1">ALERTA LEGAL 2026</h4>
+                                <p class="text-sm text-red-700">Hacienda obliga a facturar electrónicamente EN TIEMPO REAL desde 2026</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- P8 -->
-                <div class="mb-8">
                     <label class="block text-lg font-semibold text-gray-800 mb-4">
-                        ¿Cuánto tiempo dedicas a redes sociales A LA SEMANA? *
+                        ¿Sabes que en 2026 será OBLIGATORIO facturar electrónicamente en tiempo real? *
                     </label>
                     <div class="space-y-3">
                         <div class="radio-card">
-                            <input type="radio" id="p8_1" name="p8" value="Nada" class="hidden" required>
+                            <input type="radio" id="p7_1" name="p7" value="Sí, y ya estoy preparándome" class="hidden" required>
+                            <label for="p7_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                ✅ Sí, y ya estoy preparándome
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p7_2" name="p7" value="Sí, pero no sé cómo hacerlo" class="hidden">
+                            <label for="p7_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                😰 Sí, pero no sé cómo hacerlo
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p7_3" name="p7" value="No tenía ni idea 🚨" class="hidden">
+                            <label for="p7_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                🚨 No tenía ni idea
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p7_4" name="p7" value="Me da igual, ya veré" class="hidden">
+                            <label for="p7_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                🤷 Me da igual, ya veré
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P8 - GESTIÓN STOCK -->
+                <div class="mb-8">
+                    <label class="block text-lg font-semibold text-gray-800 mb-4">
+                        ¿Cuánto tiempo dedicas A LA SEMANA a gestionar stock de productos? *
+                    </label>
+                    <div class="space-y-3">
+                        <div class="radio-card">
+                            <input type="radio" id="p8_1" name="p8" value="Nada, no vendo productos" class="hidden" required>
                             <label for="p8_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ⭕ Nada
+                                ⭕ Nada, no vendo productos
                             </label>
                         </div>
                         <div class="radio-card">
@@ -797,42 +899,81 @@ app.get('/', (c) => {
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p8_5" name="p8" value="Más de 5 horas" class="hidden">
+                            <input type="radio" id="p8_5" name="p8" value="Más de 5 horas (locura)" class="hidden">
                             <label for="p8_5" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ⏱️ Más de 5 horas
+                                😱 Más de 5 horas (locura)
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- P9 -->
+                <!-- P9 - GESTIÓN TURNOS -->
                 <div class="mb-8">
                     <label class="block text-lg font-semibold text-gray-800 mb-4">
-                        Si una IA creara tu contenido y lo publicara automáticamente, ¿pagarías por eso? *
+                        Si tienes empleados, ¿cómo gestionas sus horarios y turnos? *
                     </label>
                     <div class="space-y-3">
                         <div class="radio-card">
-                            <input type="radio" id="p9_1" name="p9" value="Sí, es justo lo que necesito" class="hidden" required>
+                            <input type="radio" id="p9_1" name="p9" value="No tengo empleados, trabajo sola" class="hidden" required>
                             <label for="p9_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ✅ Sí, es justo lo que necesito
+                                👤 No tengo empleados, trabajo sola
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p9_2" name="p9" value="Depende del precio" class="hidden">
+                            <input type="radio" id="p9_2" name="p9" value="Excel / papel / WhatsApp (caos)" class="hidden">
                             <label for="p9_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                😓 Excel / papel / WhatsApp (caos)
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p9_3" name="p9" value="App específica de horarios" class="hidden">
+                            <label for="p9_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                📱 App específica de horarios
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p9_4" name="p9" value="Memoria y cruzo los dedos" class="hidden">
+                            <label for="p9_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                🙏 Memoria y cruzo los dedos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P10 - SISTEMA INTEGRAL (Nueva pregunta) -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 mb-4">
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">💡</div>
+                            <p class="text-sm text-gray-700">Imagina un sistema que automatice <strong>facturación + stock + turnos + agenda</strong> TODO EN UNO</p>
+                        </div>
+                    </div>
+                    <label class="block text-lg font-semibold text-gray-800 mb-4">
+                        ¿Pagarías por un sistema integral que automatizara TODO esto? *
+                    </label>
+                    <div class="space-y-3">
+                        <div class="radio-card">
+                            <input type="radio" id="p10_1" name="p10" value="Sí, si me ahorra tiempo y dolores de cabeza" class="hidden" required>
+                            <label for="p10_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                ✅ Sí, si me ahorra tiempo y dolores de cabeza
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" id="p10_2" name="p10" value="Depende del precio" class="hidden">
+                            <label for="p10_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
                                 💰 Depende del precio
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p9_3" name="p9" value="No, prefiero hacerlo yo" class="hidden">
-                            <label for="p9_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ❌ No, prefiero hacerlo yo
+                            <input type="radio" id="p10_3" name="p10" value="No, prefiero herramientas separadas" class="hidden">
+                            <label for="p10_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                🔀 No, prefiero herramientas separadas
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p9_4" name="p9" value="No uso redes sociales" class="hidden">
-                            <label for="p9_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
-                                ⭕ No uso redes sociales
+                            <input type="radio" id="p10_4" name="p10" value="No necesito eso" class="hidden">
+                            <label for="p10_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                                ❌ No necesito eso
                             </label>
                         </div>
                     </div>
@@ -869,90 +1010,90 @@ app.get('/', (c) => {
                     </div>
                 </div>
 
-                <!-- P10 -->
-                <div class="mb-6">
-                    <label class="block text-lg font-semibold text-gray-800 mb-3" for="p10">
-                        Tu nombre *
-                    </label>
-                    <input type="text" id="p10" name="p10" required
-                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg">
-                </div>
-
-                <!-- P11 -->
+                <!-- P11 - Nombre -->
                 <div class="mb-6">
                     <label class="block text-lg font-semibold text-gray-800 mb-3" for="p11">
-                        Nombre de tu peluquería/salón *
+                        Tu nombre *
                     </label>
                     <input type="text" id="p11" name="p11" required
                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg">
                 </div>
 
-                <!-- P12 -->
+                <!-- P12 - Nombre peluquería -->
                 <div class="mb-6">
                     <label class="block text-lg font-semibold text-gray-800 mb-3" for="p12">
-                        WhatsApp (incluye prefijo +34) *
+                        Nombre de tu peluquería/salón *
                     </label>
-                    <input type="tel" id="p12" name="p12" required placeholder="+34 600 123 456"
+                    <input type="text" id="p12" name="p12" required
                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg">
                 </div>
 
-                <!-- P13 -->
+                <!-- P13 - WhatsApp -->
                 <div class="mb-6">
                     <label class="block text-lg font-semibold text-gray-800 mb-3" for="p13">
-                        Email *
+                        WhatsApp (incluye prefijo +34) *
                     </label>
-                    <input type="email" id="p13" name="p13" required
+                    <input type="tel" id="p13" name="p13" required placeholder="+34 600 123 456"
                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg">
                 </div>
 
-                <!-- P14 -->
+                <!-- P14 - Email -->
                 <div class="mb-6">
                     <label class="block text-lg font-semibold text-gray-800 mb-3" for="p14">
+                        Email *
+                    </label>
+                    <input type="email" id="p14" name="p14" required
+                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg">
+                </div>
+
+                <!-- P15 - Ciudad -->
+                <div class="mb-6">
+                    <label class="block text-lg font-semibold text-gray-800 mb-3" for="p15">
                         Ciudad donde está tu salón *
                     </label>
-                    <input type="text" id="p14" name="p14" required
+                    <input type="text" id="p15" name="p15" required
                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg"
                            placeholder="Ejemplo: A Coruña">
                 </div>
 
-                <!-- P15 -->
+                <!-- P16 - Dirección -->
                 <div class="mb-6">
-                    <label class="block text-lg font-semibold text-gray-800 mb-3" for="p15">
+                    <label class="block text-lg font-semibold text-gray-800 mb-3" for="p16">
                         Dirección completa de tu salón
                         <span class="text-sm font-normal text-gray-500">(Calle + número - opcional para sorteo)</span>
                     </label>
-                    <input type="text" id="p15" name="p15"
+                    <input type="text" id="p16" name="p16"
                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none text-lg"
                            placeholder="Calle Ejemplo, 123">
                 </div>
 
-                <!-- P16 -->
+                <!-- P17 - Cuándo contactar -->
                 <div class="mb-8">
                     <label class="block text-lg font-semibold text-gray-800 mb-4">
                         ¿Cuándo te vendría bien que te contactemos? *
                     </label>
                     <div class="space-y-3">
                         <div class="radio-card">
-                            <input type="radio" id="p16_1" name="p16" value="Esta semana" class="hidden" required>
-                            <label for="p16_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                            <input type="radio" id="p17_1" name="p17" value="Esta semana" class="hidden" required>
+                            <label for="p17_1" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
                                 🔥 Esta semana
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p16_2" name="p16" value="Próxima semana" class="hidden">
-                            <label for="p16_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                            <input type="radio" id="p17_2" name="p17" value="Próxima semana" class="hidden">
+                            <label for="p17_2" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
                                 📅 Próxima semana
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p16_3" name="p16" value="Dentro de 2-3 semanas" class="hidden">
-                            <label for="p16_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                            <input type="radio" id="p17_3" name="p17" value="Dentro de 2-3 semanas" class="hidden">
+                            <label for="p17_3" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
                                 📆 Dentro de 2-3 semanas
                             </label>
                         </div>
                         <div class="radio-card">
-                            <input type="radio" id="p16_4" name="p16" value="Solo email, no llamar" class="hidden">
-                            <label for="p16_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
+                            <input type="radio" id="p17_4" name="p17" value="Solo email, no llamar" class="hidden">
+                            <label for="p17_4" class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer">
                                 📧 Solo email, no llamar
                             </label>
                         </div>
@@ -1054,7 +1195,7 @@ app.get('/', (c) => {
             data.timestamp = new Date().toISOString();
             
             // Check if A Coruña
-            const isCoruna = data.p14.toLowerCase().includes('coruña') || data.p14.toLowerCase().includes('corunha');
+            const isCoruna = data.p15.toLowerCase().includes('coruña') || data.p15.toLowerCase().includes('corunha');
             
             // Show loading
             document.getElementById('surveyForm').classList.add('hidden');
