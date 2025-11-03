@@ -729,7 +729,7 @@
             const doc = new jsPDF()
             
             let yPos = 15
-            const pageHeight = 270
+            const pageHeight = 250  // Reducido de 270 a 250 para dar margen
             const pageWidth = 210
             const margin = 15
             const contentWidth = pageWidth - (margin * 2)
@@ -767,7 +767,7 @@
             }
             
             function addSection(title) {
-                if (yPos > pageHeight - 15) {
+                if (yPos >= pageHeight - 15) {  // Cambiado > a >=
                     doc.addPage()
                     yPos = 20
                 }
@@ -786,7 +786,7 @@
             
             function addField(label, value, highlight = false) {
                 try {
-                    if (yPos > pageHeight) {
+                    if (yPos >= pageHeight) {  // Cambiado > a >=
                         doc.addPage()
                         yPos = 20
                     }
