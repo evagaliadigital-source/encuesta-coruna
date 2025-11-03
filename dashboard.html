@@ -18,13 +18,13 @@
     <div class="min-h-screen p-8">
         <!-- Header -->
         <div class="max-w-7xl mx-auto mb-8">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8">
+            <div class="bg-gradient-to-r from-[#9B8DC6] to-[#B8A5D6] text-white rounded-2xl shadow-xl p-8">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-4xl font-bold mb-2">📊 Dashboard Encuesta MVP</h1>
                         <p class="text-xl opacity-90">Control total de tus leads - Galia Digital</p>
                     </div>
-                    <button onclick="loadData()" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:shadow-lg transition">
+                    <button onclick="loadData()" class="bg-white text-[#9B8DC6] px-6 py-3 rounded-lg font-bold hover:shadow-lg transition">
                         🔄 Actualizar Datos
                     </button>
                 </div>
@@ -64,25 +64,25 @@
             </div>
 
             <!-- Participantes Sorteo -->
-            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl shadow-lg p-6">
+            <div class="bg-[#F3F0F9] border-2 border-[#D4CDEB] rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="text-purple-600 font-semibold">🎁 Sorteo A Coruña</div>
+                    <div class="text-[#9B8DC6] font-semibold">🎁 Sorteo A Coruña</div>
                     <div class="text-3xl">🎁</div>
                 </div>
-                <div class="text-4xl font-bold text-purple-600" id="raffleParticipants">0</div>
-                <div class="text-sm text-purple-500 mt-2">Participantes inscritos</div>
+                <div class="text-4xl font-bold text-[#9B8DC6]" id="raffleParticipants">0</div>
+                <div class="text-sm text-[#9B8DC6] mt-2">Participantes inscritos</div>
             </div>
         </div>
 
         <!-- Sorteo Action -->
         <div class="max-w-7xl mx-auto mb-8">
-            <div class="bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-300 rounded-xl shadow-lg p-6">
+            <div class="bg-gradient-to-r from-[#F3F0F9] to-[#F5F2FB] border-2 border-[#D4CDEB] rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-2">🎉 Sorteo Agenda Inteligente IA</h3>
                         <p class="text-gray-600">Sortea al ganador entre todos los participantes de A Coruña</p>
                     </div>
-                    <button onclick="drawWinner()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl transition transform hover:scale-105">
+                    <button onclick="drawWinner()" class="bg-gradient-to-r from-[#9B8DC6] to-[#B8A5D6] text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl transition transform hover:scale-105">
                         🎲 SORTEAR GANADOR
                     </button>
                 </div>
@@ -93,7 +93,7 @@
                         <div class="space-y-2 text-lg">
                             <p><strong>Nombre:</strong> <span id="winnerName"></span></p>
                             <p><strong>Peluquería:</strong> <span id="winnerBusiness"></span></p>
-                            <p><strong>Número sorteo:</strong> <span class="text-3xl font-bold text-purple-600" id="winnerNumber"></span></p>
+                            <p><strong>Número sorteo:</strong> <span class="text-3xl font-bold text-[#9B8DC6]" id="winnerNumber"></span></p>
                             <p><strong>Email:</strong> <span id="winnerEmail"></span></p>
                             <p><strong>WhatsApp:</strong> <span id="winnerWhatsapp"></span></p>
                         </div>
@@ -263,12 +263,12 @@
                         label: label,
                         data: data,
                         backgroundColor: [
-                            'rgba(102, 126, 234, 0.8)',
-                            'rgba(118, 75, 162, 0.8)',
-                            'rgba(237, 100, 166, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)'
+                            'rgba(155, 141, 198, 0.8)',
+                            'rgba(184, 165, 214, 0.8)',
+                            'rgba(212, 205, 235, 0.8)',
+                            'rgba(243, 240, 249, 0.8)',
+                            'rgba(155, 141, 198, 0.6)',
+                            'rgba(184, 165, 214, 0.6)'
                         ],
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -311,7 +311,7 @@
                     <td class="px-4 py-3">${r.p12}</td>
                     <td class="px-4 py-3">${r.p16}</td>
                     <td class="px-4 py-3 text-sm">${r.p3}</td>
-                    <td class="px-4 py-3 font-bold ${r.raffleNumber ? 'text-purple-600' : 'text-gray-400'}">
+                    <td class="px-4 py-3 font-bold ${r.raffleNumber ? 'text-[#9B8DC6]' : 'text-gray-400'}">
                         ${r.raffleNumber ? '#' + r.raffleNumber : '-'}
                     </td>
                 </tr>
