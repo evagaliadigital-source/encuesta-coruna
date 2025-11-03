@@ -238,10 +238,14 @@
 
         async function loadData() {
             try {
+                console.log('🔄 Cargando datos desde /api/responses...');
                 const response = await axios.get('/api/responses');
+                console.log('✅ Respuesta recibida:', response);
                 const data = response.data;
+                console.log('📊 Data parseada:', data);
                 
                 allResponses = data.responses;
+                console.log('📋 Total respuestas:', allResponses.length);
                 
                 // Update stats
                 document.getElementById('totalResponses').textContent = data.total;
@@ -263,7 +267,8 @@
                 updateTable(data.responses);
                 
             } catch (error) {
-                console.error('Error cargando datos:', error);
+                console.error('❌ Error cargando datos:', error);
+                console.error('❌ Detalles del error:', error.message, error.response);
                 alert('Error al cargar los datos. Verifica que el servidor esté corriendo.');
             }
         }
@@ -590,7 +595,7 @@
                 document.getElementById('reportModal').remove();
                 
                 // Show report modal
-                const reportModal = \`
+                const reportModal = `
                     <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="closeReportModal()">
                         <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col" onclick="event.stopPropagation()">
                             <div class="p-6 border-b">
@@ -604,7 +609,7 @@
                             </div>
                             
                             <div class="p-6 overflow-y-auto flex-1">
-                                <textarea id="reportContent" class="w-full h-full min-h-[400px] p-4 border-2 border-gray-300 rounded-lg focus:border-[#9B8DC6] focus:outline-none font-mono text-sm" style="white-space: pre-wrap;">\${report}</textarea>
+                                <textarea id="reportContent" class="w-full h-full min-h-[400px] p-4 border-2 border-gray-300 rounded-lg focus:border-[#9B8DC6] focus:outline-none font-mono text-sm" style="white-space: pre-wrap;">${report}</textarea>
                             </div>
                             
                             <div class="p-6 border-t bg-gray-50">
@@ -623,7 +628,7 @@
                             </div>
                         </div>
                     </div>
-                \`;
+                `;
                 
                 document.body.insertAdjacentHTML('beforeend', reportModal);
                 
@@ -663,16 +668,16 @@
             const reportContent = document.getElementById('reportContent').value;
             const phone = lead.p12.replace(/[^0-9]/g, '');
             const message = encodeURIComponent(reportContent);
-            const url = \`https://wa.me/\${phone}?text=\${message}\`;
+            const url = `https://wa.me/${phone}?text=${message}`;
             window.open(url, '_blank');
         }
 
         function sendReportEmail(index) {
             const lead = allResponses[index];
             const reportContent = document.getElementById('reportContent').value;
-            const subject = encodeURIComponent(\`Informe Personalizado para \${lead.p11}\`);
+            const subject = encodeURIComponent(`Informe Personalizado para ${lead.p11}`);
             const body = encodeURIComponent(reportContent);
-            const url = \`mailto:\${lead.p13}?subject=\${subject}&body=\${body}\`;
+            const url = `mailto:${lead.p13}?subject=${subject}&body=${body}`;
             window.location.href = url;
         }
 
