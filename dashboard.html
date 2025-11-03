@@ -785,30 +785,44 @@
             }
             
             function addField(label, value, highlight = false) {
-                if (yPos > pageHeight) {
-                    doc.addPage()
-                    yPos = 20
+                try {
+                    if (yPos > pageHeight) {
+                        doc.addPage()
+                        yPos = 20
+                    }
+                    
+                    if (highlight) {
+                        drawBox(yPos - 4, 8, [230, 242, 242])
+                    }
+                    
+                    doc.setFontSize(10)
+                    doc.setFont('helvetica', 'bold')
+                    doc.setTextColor(45, 45, 45)
+                    doc.text(label, margin + 2, yPos)
+                    
+                    yPos += 5
+                    doc.setFont('helvetica', 'normal')
+                    doc.setTextColor(80, 80, 80)
+                    doc.setFontSize(9)
+                    
+                    // Forzar conversion a string segura
+                    let displayValue = 'No respondido'
+                    if (value !== undefined && value !== null && value !== '') {
+                        if (typeof value === 'object') {
+                            displayValue = JSON.stringify(value)
+                        } else {
+                            displayValue = String(value)
+                        }
+                    }
+                    
+                    const lines = doc.splitTextToSize(displayValue, contentWidth - 10)
+                    doc.text(lines, margin + 5, yPos)
+                    
+                    yPos += (lines.length * 5) + 4
+                } catch (error) {
+                    console.error('Error en addField:', label, value, error)
+                    yPos += 10 // Skip this field
                 }
-                
-                if (highlight) {
-                    drawBox(yPos - 4, 8, [230, 242, 242])
-                }
-                
-                doc.setFontSize(10)
-                doc.setFont('helvetica', 'bold')
-                doc.setTextColor(45, 45, 45)
-                doc.text(label, margin + 2, yPos)
-                
-                yPos += 5
-                doc.setFont('helvetica', 'normal')
-                doc.setTextColor(80, 80, 80)
-                doc.setFontSize(9)
-                
-                const displayValue = String(value || 'No respondido')
-                const lines = doc.splitTextToSize(displayValue, contentWidth - 10)
-                doc.text(lines, margin + 5, yPos)
-                
-                yPos += (lines.length * 5) + 4
             }
             
             addSection('DATOS PERSONALES')
@@ -829,12 +843,14 @@
             
             yPos += 5
             
+            console.log('📝 Agregando sección CUALIFICACION');
             addSection('CUALIFICACION')
             addField('Tiempo dedicado a gestion de agenda:', data.p1)
             addField('Mayor problema con las citas:', data.p2)
             
             yPos += 3
             
+            console.log('📝 Agregando sección NECESIDADES DEL NEGOCIO');
             addSection('NECESIDADES DEL NEGOCIO')
             addField('Que mas te quita tiempo o dinero:', data.p5)
             addField('Facturacion obligatoria 2026:', data.p6)
@@ -843,11 +859,16 @@
             
             yPos += 3
             
+            console.log('📝 Agregando sección VALIDACION DE SOLUCION');
             addSection('VALIDACION DE SOLUCION')
+            console.log('  → p3:', data.p3);
             addField('Que te frena para automatizar:', data.p3)
+            console.log('  → p4:', data.p4);
             addField('Probar GRATIS 15 dias:', data.p4)
+            console.log('  → p9:', data.p9);
             addField('Sistema todo-en-uno:', data.p9)
             
+            console.log('💰 Agregando PRECIO');
             yPos += 2
             drawBox(yPos - 4, 12, [230, 242, 242])
             doc.setFontSize(11)
@@ -859,6 +880,7 @@
             doc.text(data.p18_precio || 'No especificado', margin + 70, yPos + 2)
             yPos += 15
             
+            console.log('📞 Agregando sección HORARIO DE CONTACTO');
             addSection('HORARIO DE CONTACTO')
             if (data.p17_horario) addField('Horarios preferidos:', data.p17_horario)
             if (data.p17_dias) addField('Dias preferidos:', data.p17_dias)
