@@ -40,9 +40,11 @@ app.post('/api/submit-survey', async (c) => {
   // Calculate priority
   const priority = calculatePriority(data)
   
-  // Check if participates in raffle (A Coruña)
-  const participatesInRaffle = data.p14?.toLowerCase().includes('coruña') || 
-                               data.p14?.toLowerCase().includes('coruna')
+  // Check if participates in raffle (must want it AND be from A Coruña)
+  const isFromCoruna = data.p14?.toLowerCase().includes('coruña') || 
+                       data.p14?.toLowerCase().includes('coruna')
+  const wantsRaffle = data.wantRaffle === 'si'
+  const participatesInRaffle = wantsRaffle && isFromCoruna
   
   const raffleNumber = participatesInRaffle ? nextRaffleNumber++ : null
   
@@ -396,7 +398,12 @@ app.get('/', (c) => {
                                    class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#9B8DC6] focus:outline-none"
                                    placeholder="Calle, número, código postal">
                         </div>
+                    </div>
 
+                    <!-- Block 5: Intereses -->
+                    <div class="question-block" data-block="5">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">💡 Bloque 5: Tus Intereses</h3>
+                        
                         <!-- P16 -->
                         <div class="mb-6">
                             <label class="block text-gray-700 font-semibold mb-3">
@@ -409,6 +416,55 @@ app.get('/', (c) => {
                                 <option value="Este mes">Este mes</option>
                                 <option value="No tengo prisa">No tengo prisa</option>
                             </select>
+                        </div>
+
+                        <!-- Sorteo Opt-in -->
+                        <div class="mb-6 bg-gradient-to-r from-[#F3F0F9] to-[#F5F2FB] border-2 border-[#D4CDEB] rounded-xl p-6">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="wantRaffle" name="wantRaffle" value="si" class="mt-1 mr-3 w-5 h-5 text-[#9B8DC6]">
+                                <label for="wantRaffle" class="cursor-pointer">
+                                    <span class="font-bold text-gray-800">🎁 Quiero participar en el sorteo de A Coruña</span>
+                                    <p class="text-sm text-gray-600 mt-1">Sorteo exclusivo: 1 año de Agenda Inteligente IA (Valor: 1.020€)</p>
+                                    <p class="text-xs text-gray-500 mt-1">📅 Fecha: 24 noviembre 2025 • Solo peluquerías de A Coruña</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Report Opt-in -->
+                        <div class="mb-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="wantReport" name="wantReport" value="si" class="mt-1 mr-3 w-5 h-5 text-blue-600">
+                                <label for="wantReport" class="cursor-pointer">
+                                    <span class="font-bold text-gray-800">📊 Quiero recibir informe de mejoras para mi negocio</span>
+                                    <p class="text-sm text-gray-600 mt-1">Análisis personalizado basado en tus respuestas con recomendaciones específicas</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Block 6: Confirmación Legal -->
+                    <div class="question-block" data-block="6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">✅ Confirmación Final</h3>
+                        
+                        <div class="bg-gray-50 border-2 border-gray-300 rounded-xl p-6 mb-6">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="acceptGDPR" name="acceptGDPR" required class="mt-1 mr-3 w-5 h-5 text-[#9B8DC6]">
+                                <label for="acceptGDPR" class="cursor-pointer text-sm">
+                                    <span class="font-semibold text-gray-800">He leído y acepto la <a href="https://galiadigital.com/proteccion-datos" target="_blank" class="text-[#9B8DC6] underline hover:text-[#8A7DB5]">Política de Protección de Datos</a></span>
+                                    <p class="text-xs text-gray-600 mt-2">
+                                        Tus datos serán tratados conforme al RGPD. Podrás ejercer tus derechos de acceso, rectificación, cancelación y oposición en cualquier momento contactando con eva@galiadigital.es
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600 mb-4">Al enviar esta encuesta confirmas que:</p>
+                            <ul class="text-xs text-gray-500 text-left max-w-md mx-auto mb-6 space-y-1">
+                                <li>✓ Tus datos son verídicos</li>
+                                <li>✓ Autorizas el tratamiento de tus datos personales</li>
+                                <li>✓ Aceptas recibir comunicaciones comerciales de Galia Digital (puedes darte de baja en cualquier momento)</li>
+                            </ul>
                         </div>
                     </div>
 
@@ -424,7 +480,7 @@ app.get('/', (c) => {
                         </button>
                         <button type="submit" id="submitBtn" 
                                 class="ml-auto px-8 py-3 bg-gradient-to-r from-[#9B8DC6] to-[#B8A5D6] text-white rounded-lg font-bold hover:shadow-xl transition transform hover:scale-105 hidden">
-                            ✅ Enviar Encuesta
+                            📤 Enviar Resultados
                         </button>
                     </div>
                 </form>
@@ -441,7 +497,7 @@ app.get('/', (c) => {
                         <p class="text-gray-600">Sorteo: 24 noviembre 2025</p>
                         <p class="text-sm text-gray-500 mt-2">Premio: 1 año Agenda Inteligente IA (1.020€)</p>
                     </div>
-                    <p class="text-gray-600 mt-6">Eva se pondrá en contacto contigo pronto 💜</p>
+                    <p class="text-gray-600 mt-6">¡Mucha suerte! 🍀</p>
                 </div>
             </div>
         </div>
@@ -450,7 +506,7 @@ app.get('/', (c) => {
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     <script>
         let currentBlock = 1
-        const totalBlocks = 4
+        const totalBlocks = 6
         const totalQuestions = 16
         
         const blocks = document.querySelectorAll('.question-block')
@@ -499,7 +555,15 @@ app.get('/', (c) => {
             const inputs = currentBlockElement.querySelectorAll('input[required], select[required]')
             
             for (let input of inputs) {
-                if (input.type === 'checkbox') {
+                if (input.type === 'checkbox' && input.required) {
+                    // For required single checkboxes (like GDPR)
+                    if (!input.checked) {
+                        alert('Debes aceptar la Política de Protección de Datos para continuar')
+                        input.focus()
+                        return false
+                    }
+                } else if (input.type === 'checkbox') {
+                    // For optional multi-checkboxes (p6, p7)
                     const checkboxGroup = currentBlockElement.querySelectorAll(\`input[name="\${input.name}"]\`)
                     const checkedCount = Array.from(checkboxGroup).filter(cb => cb.checked).length
                     if (checkedCount === 0) {
@@ -641,11 +705,19 @@ function sendEmailToEva(response) {
   console.log(`  - Tiempo semanal RRSS: ${response.p8}`)
   console.log(`  - Pagaría contenido IA: ${response.p9}`)
   console.log('')
+  console.log('💡 INTERESES:')
+  console.log(`  - Quiere informe de mejoras: ${response.wantReport === 'si' ? 'SÍ' : 'NO'}`)
+  console.log(`  - Quiere participar en sorteo: ${response.wantRaffle === 'si' ? 'SÍ' : 'NO'}`)
+  console.log('')
   
   if (response.participatesInRaffle) {
     console.log('🎁 SORTEO:')
     console.log(`  Participa: SÍ`)
     console.log(`  Número: #${response.raffleNumber}`)
+    console.log('')
+  } else if (response.wantRaffle === 'si') {
+    console.log('⚠️ SORTEO:')
+    console.log(`  Quería participar pero NO es de A Coruña`)
     console.log('')
   }
   
