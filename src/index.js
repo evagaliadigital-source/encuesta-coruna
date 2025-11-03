@@ -450,7 +450,7 @@ app.get('/', (c) => {
                             <div class="flex items-start">
                                 <input type="checkbox" id="acceptGDPR" name="acceptGDPR" required class="mt-1 mr-3 w-5 h-5 text-[#9B8DC6]">
                                 <label for="acceptGDPR" class="cursor-pointer text-sm">
-                                    <span class="font-semibold text-gray-800">He leído y acepto la <a href="https://galiadigital.com/proteccion-datos" target="_blank" class="text-[#9B8DC6] underline hover:text-[#8A7DB5]">Política de Protección de Datos</a></span>
+                                    <span class="font-semibold text-gray-800">He leído y acepto la <a href="https://galiadigital.es/politica-de-privacidad/" target="_blank" class="text-[#9B8DC6] underline hover:text-[#8A7DB5]">Política de Protección de Datos</a></span>
                                     <p class="text-xs text-gray-600 mt-2">
                                         Tus datos serán tratados conforme al RGPD. Podrás ejercer tus derechos de acceso, rectificación, cancelación y oposición en cualquier momento contactando con eva@galiadigital.es
                                     </p>
