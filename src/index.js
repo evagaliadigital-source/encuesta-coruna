@@ -147,6 +147,11 @@ app.get('/', (c) => {
                 <p class="text-gray-600 mb-1">Participa y gana 1 año de Agenda Inteligente IA</p>
                 <p class="text-[#9B8DC6] font-bold text-lg">Valor: 1.020€ (300€ setup + 720€ servicio anual)</p>
                 <p class="text-sm text-gray-500 mt-2">📅 Sorteo: 24 noviembre 2025</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    <a href="https://galiadigital.es/sorteo/" target="_blank" class="text-[#9B8DC6] underline hover:text-[#8A7DB5]">
+                        📋 Ver bases legales del sorteo
+                    </a>
+                </p>
             </div>
         </div>
 
@@ -425,7 +430,10 @@ app.get('/', (c) => {
                                 <label for="wantRaffle" class="cursor-pointer">
                                     <span class="font-bold text-gray-800">🎁 Quiero participar en el sorteo de A Coruña</span>
                                     <p class="text-sm text-gray-600 mt-1">Sorteo exclusivo: 1 año de Agenda Inteligente IA (Valor: 1.020€)</p>
-                                    <p class="text-xs text-gray-500 mt-1">📅 Fecha: 24 noviembre 2025 • Solo peluquerías de A Coruña</p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        📅 Fecha: 24 noviembre 2025 • Solo peluquerías de A Coruña • 
+                                        <a href="https://galiadigital.es/sorteo/" target="_blank" class="text-[#9B8DC6] underline hover:text-[#8A7DB5]">Ver bases legales</a>
+                                    </p>
                                 </label>
                             </div>
                         </div>
