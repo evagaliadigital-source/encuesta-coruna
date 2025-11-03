@@ -1,12 +1,40 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 
 const app = new Hono()
 
-// In-memory storage (temporal para MVP)
+// Persistent storage in JSON file
+const RESPONSES_FILE = './responses.json'
+
+// Load existing responses on startup
 let responses = []
 let nextRaffleNumber = 20
+
+function loadResponses() {
+  try {
+    if (existsSync(RESPONSES_FILE)) {
+      const data = readFileSync(RESPONSES_FILE, 'utf8')
+      const parsed = JSON.parse(data)
+      responses = parsed.responses || []
+      nextRaffleNumber = parsed.nextRaffleNumber || 20
+      console.log(`✅ Cargadas ${responses.length} respuestas desde archivo`)
+    }
+  } catch (error) {
+    console.log('⚠️  No hay respuestas previas, empezando desde cero')
+  }
+}
+
+function saveResponses() {
+  try {
+    writeFileSync(RESPONSES_FILE, JSON.stringify({ responses, nextRaffleNumber }, null, 2))
+  } catch (error) {
+    console.error('❌ Error guardando respuestas:', error)
+  }
+}
+
+// Load on startup
+loadResponses()
 
 // Enable CORS
 app.use('/api/*', cors())
@@ -58,6 +86,9 @@ app.post('/api/submit-survey', async (c) => {
   }
   
   responses.push(response)
+  
+  // Save to file immediately
+  saveResponses()
   
   console.log(`✅ Nueva encuesta recibida: ${data.p10} - ${priority}`)
   
