@@ -72,6 +72,20 @@ app.post('/api/submit-survey', async (c) => {
   })
 })
 
+// API: Generate report
+app.post('/api/generate-report', async (c) => {
+  const { index, type } = await c.req.json()
+  
+  if (index < 0 || index >= responses.length) {
+    return c.json({ error: 'Respuesta no encontrada' }, 404)
+  }
+  
+  const response = responses[index]
+  const report = type === 'complete' ? generateCompleteReport(response) : generateCommercialReport(response)
+  
+  return c.json({ report })
+})
+
 // API: Draw winner
 app.post('/api/draw-winner', (c) => {
   const participants = responses.filter(r => r.participatesInRaffle)
@@ -745,6 +759,183 @@ function sendEmailToEva(response) {
   console.log(`Timestamp: ${response.timestamp}`)
   console.log('='.repeat(80))
   console.log('\n')
+}
+
+function generateCompleteReport(r) {
+  const timeValue = r.p1 === 'Más de 2 horas' ? '2+ horas' : r.p1
+  const timeSaved = r.p1 === 'Más de 2 horas' ? '10h' : r.p1 === '1-2 horas' ? '8h' : '5h'
+  const roiMonths = r.p3 === '40-60€/mes' ? '6' : r.p3 === '60-80€/mes' ? '5' : r.p3 === '20-40€/mes' ? '8' : '4'
+  
+  const socialOpportunity = (r.p7 && r.p7 !== 'Ninguna' && r.p8 !== 'No uso RRSS') 
+    ? `\n3. **Automatización RRSS**: Usas ${r.p7} y dedicas ${r.p8}/semana. Con nuestro sistema de contenido IA podrías recuperar 60% de ese tiempo.`
+    : ''
+  
+  const report = `🎯 ANÁLISIS PERSONALIZADO PARA ${r.p11.toUpperCase()}
+
+Hola ${r.p10.split(' ')[0]},
+
+He analizado tus respuestas y esto es lo que he identificado:
+
+📊 TU SITUACIÓN ACTUAL:
+• Tiempo perdido en gestión de agenda: ${timeValue} al día
+• Principal problema: ${r.p2}
+• Disposición de inversión: ${r.p3}
+• Principal freno: ${r.p4}
+
+💡 OPORTUNIDADES DETECTADAS:
+
+1. **Recuperación de Tiempo**: Con ${timeValue} diarios perdidos en gestión manual, estás dedicando aproximadamente ${timeValue === '2+ horas' ? '10+ horas' : timeValue === '1-2 horas' ? '7-8 horas' : '3-5 horas'} semanales a tareas que podrían automatizarse completamente.
+
+2. **Reducción de No-Shows**: El problema "${r.p2}" tiene solución directa con recordatorios automáticos por WhatsApp. Nuestros clientes reducen cancelaciones en un 80%.${socialOpportunity}
+
+🎯 RECOMENDACIONES PRIORITARIAS:
+
+**Para ${r.p11}:**
+${r.priority === '🔥 HOT' ? '✅ Tu perfil es IDEAL para implementar ahora. Tienes necesidad urgente + disposición de inversión.' : ''}
+${r.priority === '🟡 WARM' ? '✅ Estás en el momento perfecto para dar el salto. La inversión se recupera rápido.' : ''}
+${r.priority === '🟢 COLD' ? '✅ Puedes empezar con una demo gratuita para ver el impacto sin compromiso.' : ''}
+
+**Acción inmediata:**
+1. Agenda Inteligente IA → Soluciona "${r.p2}"
+2. Integración WhatsApp 24/7 → Gestión automática
+3. Listas de espera inteligentes → Aprovecha horas muertas
+
+📈 IMPACTO ESTIMADO PARA ${r.p11}:
+
+• **Tiempo recuperado**: +${timeSaved}/semana = ${parseInt(timeSaved) * 4}h/mes
+• **Reducción no-shows**: -80% cancelaciones
+• **ROI esperado**: Inversión recuperada en ${roiMonths} meses
+• **Valor anual recuperado**: ${timeValue === '2+ horas' ? '500h' : timeValue === '1-2 horas' ? '400h' : '250h'} anuales = ${timeValue === '2+ horas' ? '12.500€' : timeValue === '1-2 horas' ? '10.000€' : '6.250€'}* en tiempo
+
+*Calculado a 25€/hora (valor promedio tiempo peluquera)
+
+🔄 COMPARATIVA:
+
+**Situación Actual:**
+❌ ${timeValue} diarios en gestión manual
+❌ Cancelaciones frecuentes
+❌ Horas muertas sin aprovechar
+❌ Estrés por agenda caótica
+
+**Con Agenda Inteligente IA:**
+✅ Gestión automática 24/7
+✅ 80% menos cancelaciones
+✅ Horas muertas recuperadas
+✅ Libertad total de tu agenda
+
+¿Te gustaría que hablemos sobre cómo implementar esto en ${r.p11}?
+
+${r.p16 === 'Esta semana' ? '📞 Veo que prefieres que hablemos esta semana. ¿Te viene bien mañana?' : ''}
+${r.p16 === 'Próxima semana' ? '📞 Perfecto, te contacto la próxima semana para una demo rápida.' : ''}
+
+Un abrazo,
+
+**Eva Rodríguez**
+Fundadora Galia Digital
+📱 +34 676 351 851
+📧 eva@galiadigital.es
+🌐 galiadigital.es`
+
+  return report
+}
+
+function generateCommercialReport(r) {
+  const timeValue = r.p1 === 'Más de 2 horas' ? '2+ horas' : r.p1
+  const recommendedPrice = r.p3 === '40-60€/mes' ? '60€/mes' : 
+                          r.p3 === '60-80€/mes' ? '75€/mes' : 
+                          r.p3 === '20-40€/mes' ? '49€/mes' : '90€/mes'
+  const roiMonths = r.p3 === '40-60€/mes' ? '6' : r.p3 === '60-80€/mes' ? '5' : r.p3 === '20-40€/mes' ? '7' : '4'
+  
+  const socialAddon = (r.p9 === 'Sí, definitivamente' || r.p9 === 'Depende del precio')
+    ? `\n📱 **BONUS: Gestión Contenido RRSS con IA**
+• Generación automática de posts
+• Calendario editorial mensual
+• Stories personalizadas
+• Inversión adicional: +30€/mes
+• Ahorro tiempo: 3-5h/semana`
+    : ''
+  
+  const urgencyNote = r.p16 === 'Esta semana' 
+    ? '\n\n🔥 **OFERTA VÁLIDA ESTA SEMANA**: Si decidimos trabajar juntas antes del viernes, te regalo el setup (300€). Solo pagas desde mes 1.'
+    : ''
+  
+  const report = `💼 PROPUESTA PERSONALIZADA PARA ${r.p11.toUpperCase()}
+
+Hola ${r.p10.split(' ')[0]},
+
+Basándome en tus respuestas, he preparado una solución a medida para ${r.p11}:
+
+🎯 LO QUE HAS IDENTIFICADO:
+
+Dedicas ${timeValue} al día a gestión de agenda manual, tu mayor problema es "${r.p2}", y estás ${r.p5 === 'Sí, ahora mismo' ? 'lista para probar una solución YA' : r.p5 === 'Sí, en 1-2 meses' ? 'considerando probar una solución pronto' : 'abierta a explorar opciones'}.
+
+${r.p4 === 'Ninguno, lo haría hoy' ? '✨ Y lo mejor: no tienes frenos. ¡Estás lista para dar el salto!' : `Tu principal freno es "${r.p4}" - te entiendo perfectamente, y por eso nuestra solución es súper fácil de implementar.`}
+
+✨ SOLUCIÓN GALIA DIGITAL PARA ${r.p11}:
+
+📱 **AGENDA INTELIGENTE IA - PLAN PERSONALIZADO**
+
+**Lo que incluye:**
+✅ Integración WhatsApp 24/7 (tus clientes reservan sin molestarte)
+✅ Recordatorios automáticos (adiós no-shows)
+✅ Gestión de listas de espera inteligente (aprovecha horas muertas)
+✅ Dashboard control total (tú tienes el poder, la IA trabaja para ti)
+✅ Integración con tu sistema actual (${r.p4 === 'No sé cómo funciona' ? 'súper fácil, yo te lo configuro todo' : 'proceso sencillo'})
+✅ Soporte personalizado (estoy disponible para lo que necesites)
+
+💰 INVERSIÓN PARA ${r.p11}:
+
+**Setup inicial**: 300€ (una sola vez)
+• Configuración personalizada
+• Integración completa
+• Formación incluida
+• Soporte primeras 2 semanas
+
+**Servicio mensual**: ${recommendedPrice}
+• Gestión automática 24/7
+• Actualizaciones incluidas
+• Soporte continuo
+• Sin permanencia
+
+**ROI**: Tu inversión se recupera en ${roiMonths} meses
+• Después, es puro beneficio (tiempo + dinero)${socialAddon}
+
+🎁 BENEFICIOS CONCRETOS PARA ${r.p11}:
+
+✅ **+8 horas/semana libres** → Puedes atender 16 clientes más/semana
+✅ **-80% cancelaciones** → Recuperas ingresos perdidos (aprox. 400€/mes)
+✅ **Gestión automática 24/7** → Reservas mientras duermes
+✅ **Horas muertas = €€€** → Las listas de espera llenan tus huecos
+${r.p7 && r.p7 !== 'Ninguna' ? `✅ **Presencia digital profesional** → Aprovechas que usas ${r.p7}` : ''}
+
+📊 EJEMPLO REAL:
+
+**Mes 1-${roiMonths}**: Recuperas inversión
+**Mes ${parseInt(roiMonths) + 1}+**: 
+• Ganas: ${timeValue === '2+ horas' ? '40h' : timeValue === '1-2 horas' ? '32h' : '20h'}/mes libres
+• Reduces: 80% no-shows (≈ 400€/mes recuperados)
+• Rentabilidad: ∞ (sigues ganando más cada mes)
+
+⚡ PRÓXIMO PASO:
+
+${r.p16 === 'Esta semana' ? '📞 **Demo personalizada esta semana** (30 min)\nTe muestro cómo funciona específicamente para ' + r.p11 : ''}
+${r.p16 === 'Próxima semana' ? '📞 **Demo personalizada próxima semana** (30 min)\nAgendamos cuando mejor te venga' : ''}
+${r.p16 === 'Este mes' || r.p16 === 'No tengo prisa' ? '📞 **Demo sin compromiso cuando quieras** (30 min)\nTú decides cuándo' : ''}
+
+🎯 **GARANTÍA GALIA DIGITAL:**
+Si en los primeros 15 días no ves resultados claros, cancelamos y te devuelvo el dinero. Sin letra pequeña.${urgencyNote}
+
+¿Hablamos ${r.p16 === 'Esta semana' ? 'esta semana' : r.p16 === 'Próxima semana' ? 'la próxima' : 'pronto'}?
+
+**Eva Rodríguez**
+Fundadora Galia Digital
+📱 +34 676 351 851 (WhatsApp disponible)
+📧 eva@galiadigital.es
+🌐 galiadigital.es
+
+PD: ${r.wantReport === 'si' ? 'Vi que querías este informe. Espero que te ayude a tomar la decisión 💜' : 'Créeme, ${r.p11} merece tener su tiempo de vuelta.'}`
+
+  return report
 }
 
 export default app

@@ -387,9 +387,17 @@
                         ${r.raffleNumber ? '#' + r.raffleNumber : '-'}
                     </td>
                     <td class="px-4 py-3">
-                        <button onclick="viewDetails(${index})" class="text-[#9B8DC6] hover:text-[#8A7DB5] font-semibold">
-                            👁️ Ver
-                        </button>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="viewDetails(${index})" class="text-[#9B8DC6] hover:text-[#8A7DB5] font-semibold text-sm whitespace-nowrap">
+                                👁️ Ver
+                            </button>
+                            <button onclick="generateReport(${index}, 'complete')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm whitespace-nowrap">
+                                📊 Informe
+                            </button>
+                            <button onclick="generateReport(${index}, 'commercial')" class="text-green-600 hover:text-green-800 font-semibold text-sm whitespace-nowrap">
+                                💼 Propuesta
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -553,6 +561,116 @@
         function closeModal() {
             const modal = document.getElementById('detailModal');
             if (modal) modal.remove();
+        }
+
+        async function generateReport(index, type) {
+            const reportType = type === 'complete' ? 'Informe Completo' : 'Propuesta Comercial';
+            const icon = type === 'complete' ? '📊' : '💼';
+            
+            // Show loading
+            const loadingModal = `
+                <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-xl max-w-3xl w-full p-8 text-center">
+                        <div class="text-6xl mb-4">⏳</div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Generando ${reportType}...</h2>
+                        <p class="text-gray-600">Esto tomará solo unos segundos</p>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', loadingModal);
+            
+            try {
+                const response = await axios.post('/api/generate-report', { index, type });
+                const report = response.data.report;
+                
+                // Remove loading modal
+                document.getElementById('reportModal').remove();
+                
+                // Show report modal
+                const reportModal = \`
+                    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="closeReportModal()">
+                        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+                            <div class="p-6 border-b">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-gray-800">${icon} ${reportType}</h2>
+                                        <p class="text-sm text-gray-500 mt-1">Personalizado para ${allResponses[index].p11}</p>
+                                    </div>
+                                    <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 overflow-y-auto flex-1">
+                                <textarea id="reportContent" class="w-full h-full min-h-[400px] p-4 border-2 border-gray-300 rounded-lg focus:border-[#9B8DC6] focus:outline-none font-mono text-sm" style="white-space: pre-wrap;">\${report}</textarea>
+                            </div>
+                            
+                            <div class="p-6 border-t bg-gray-50">
+                                <div class="flex gap-3 flex-wrap">
+                                    <button onclick="copyReport()" class="flex-1 bg-[#9B8DC6] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#8A7DB5] transition">
+                                        📋 Copiar al Portapapeles
+                                    </button>
+                                    <button onclick="sendReportWhatsApp(${index})" class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition">
+                                        📱 Enviar por WhatsApp
+                                    </button>
+                                    <button onclick="sendReportEmail(${index})" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                                        📧 Enviar por Email
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-3 text-center">Puedes editar el texto antes de enviarlo</p>
+                            </div>
+                        </div>
+                    </div>
+                \`;
+                
+                document.body.insertAdjacentHTML('beforeend', reportModal);
+                
+            } catch (error) {
+                document.getElementById('reportModal')?.remove();
+                console.error('Error generating report:', error);
+                alert('Error al generar el informe. Por favor, intenta de nuevo.');
+            }
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            if (modal) modal.remove();
+        }
+
+        function copyReport() {
+            const reportContent = document.getElementById('reportContent');
+            reportContent.select();
+            document.execCommand('copy');
+            
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Copiado!';
+            btn.classList.add('bg-green-600');
+            btn.classList.remove('bg-[#9B8DC6]');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-[#9B8DC6]');
+            }, 2000);
+        }
+
+        function sendReportWhatsApp(index) {
+            const lead = allResponses[index];
+            const reportContent = document.getElementById('reportContent').value;
+            const phone = lead.p12.replace(/[^0-9]/g, '');
+            const message = encodeURIComponent(reportContent);
+            const url = \`https://wa.me/\${phone}?text=\${message}\`;
+            window.open(url, '_blank');
+        }
+
+        function sendReportEmail(index) {
+            const lead = allResponses[index];
+            const reportContent = document.getElementById('reportContent').value;
+            const subject = encodeURIComponent(\`Informe Personalizado para \${lead.p11}\`);
+            const body = encodeURIComponent(reportContent);
+            const url = \`mailto:\${lead.p13}?subject=\${subject}&body=\${body}\`;
+            window.location.href = url;
         }
 
         // Sorteo section moved to end
