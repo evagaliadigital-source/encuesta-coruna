@@ -103,6 +103,33 @@ app.post('/api/submit-survey', async (c) => {
   })
 })
 
+// API: Delete response
+app.post('/api/delete-response', async (c) => {
+  const { timestamp } = await c.req.json()
+  
+  if (!timestamp) {
+    return c.json({ success: false, message: 'Timestamp requerido' }, 400)
+  }
+  
+  const initialLength = responses.length
+  responses = responses.filter(r => r.timestamp !== timestamp)
+  
+  if (responses.length === initialLength) {
+    return c.json({ success: false, message: 'Respuesta no encontrada' }, 404)
+  }
+  
+  // Save to file immediately
+  saveResponses()
+  
+  console.log(`🗑️  Respuesta eliminada: timestamp ${timestamp}`)
+  
+  return c.json({ 
+    success: true, 
+    message: 'Respuesta eliminada correctamente',
+    remaining: responses.length
+  })
+})
+
 // API: Generate report
 app.post('/api/generate-report', async (c) => {
   const { index, type } = await c.req.json()

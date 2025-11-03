@@ -384,9 +384,14 @@
                         ${r.raffleNumber ? '#' + r.raffleNumber : '-'}
                     </td>
                     <td class="px-4 py-3">
-                        <button onclick="viewDetails(${index})" class="text-[#008080] hover:text-[#006666] font-semibold text-sm">
-                            Ver Detalles
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="viewDetails(${index})" class="text-[#008080] hover:text-[#006666] font-semibold text-sm">
+                                Ver
+                            </button>
+                            <button onclick="deleteResponse(${index})" class="text-red-600 hover:text-red-800 font-semibold text-sm">
+                                Eliminar
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -581,6 +586,66 @@
         function closeModal() {
             const modal = document.getElementById('detailModal');
             if (modal) modal.remove();
+        }
+
+        async function deleteResponse(index) {
+            const r = allResponses[index];
+            
+            // Confirmacion doble
+            const confirmMsg = `ELIMINAR RESPUESTA?\n\n` +
+                `Nombre: ${r.p10}\n` +
+                `Peluqueria: ${r.p11}\n` +
+                `Ciudad: ${r.p14}\n\n` +
+                `Esta accion NO se puede deshacer.`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // Segunda confirmacion
+            if (!confirm('Estas 100% segura? Esta respuesta se eliminara permanentemente.')) {
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                const loadingMsg = document.createElement('div');
+                loadingMsg.id = 'deleteLoading';
+                loadingMsg.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl z-50';
+                loadingMsg.innerHTML = 'Eliminando...';
+                document.body.appendChild(loadingMsg);
+                
+                const response = await axios.post('/api/delete-response', { 
+                    timestamp: r.timestamp 
+                });
+                
+                // Remove loading
+                document.getElementById('deleteLoading').remove();
+                
+                if (response.data.success) {
+                    // Mostrar exito
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50';
+                    successMsg.innerHTML = 'Respuesta eliminada correctamente';
+                    document.body.appendChild(successMsg);
+                    
+                    setTimeout(() => successMsg.remove(), 3000);
+                    
+                    // Recargar datos
+                    await loadData();
+                } else {
+                    throw new Error(response.data.message || 'Error desconocido');
+                }
+                
+            } catch (error) {
+                console.error('Error eliminando respuesta:', error);
+                
+                // Remove loading if exists
+                const loading = document.getElementById('deleteLoading');
+                if (loading) loading.remove();
+                
+                alert('Error al eliminar la respuesta: ' + error.message);
+            }
         }
 
         function exportCSV() {
