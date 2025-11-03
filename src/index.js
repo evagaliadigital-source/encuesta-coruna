@@ -129,7 +129,7 @@ app.get('/', (c) => {
                          alt="Galia Digital Logo" 
                          class="mx-auto h-32 md:h-40 object-contain">
                 </div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2">GAL IA - Agenda Inteligente</h1>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">GALIA - Agenda Inteligente</h1>
                 <p class="text-lg opacity-90">Ayúdanos a mejorar la vida de las peluqueras</p>
             </div>
         </div>
