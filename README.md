@@ -16,12 +16,12 @@ Sistema completo de encuesta para validación MVP de **Galia Digital** - Agenda 
 
 ### Encuesta Pública
 ```
-https://3000-ij818hriex2ipsllstcap-8f57ffe2.sandbox.novita.ai
+https://3000-ixy36f8l6vv415eadlcm8-583b4d74.sandbox.novita.ai
 ```
 
 ### Dashboard Eva (Privado)
 ```
-https://3000-ij818hriex2ipsllstcap-8f57ffe2.sandbox.novita.ai/dashboard
+https://3000-ixy36f8l6vv415eadlcm8-583b4d74.sandbox.novita.ai/dashboard
 ```
 
 ---
@@ -325,6 +325,12 @@ Dashboard HTML con estadísticas y gráficos
 ---
 
 ## 📝 Changelog
+
+### v1.1 (03 Nov 2025)
+- ✅ **Paleta de colores suave**: Lavanda #9B8DC6 y Malva #B8A5D6
+- ✅ Restaurado desde backup exitosamente
+- ✅ Backend reconstruido con paleta actualizada
+- ✅ Preparado para integración email/Odoo
 
 ### v1.0 (31 Oct 2025)
 - ✅ Encuesta completa 16 preguntas
