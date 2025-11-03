@@ -61,40 +61,8 @@ app.get('/generar-pdf', (c) => {
     return c.html('<h1>Error: Respuesta no encontrada</h1>')
   }
   
-  // Generar HTML que carga los datos y genera el PDF automáticamente
-  return c.html(`
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Generando PDF...</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
-<body>
-    <h1 style="text-align: center; font-family: Arial; margin-top: 100px;">
-        Generando PDF...
-    </h1>
-    <script>
-        // Datos de la respuesta
-        const data = ${JSON.stringify(response)};
-        
-        // Esperar a que jsPDF cargue
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                generatePDF(data);
-                // Cerrar ventana después de 2 segundos
-                setTimeout(function() {
-                    window.close();
-                }, 2000);
-            }, 500);
-        });
-        
-        // COPIAR FUNCIÓN generatePDF DEL FORMULARIO AQUÍ
-        ${readFileSync('./src/index.js', 'utf8').match(/function generatePDF\(data\) \{[\s\S]*?\n        \}/)[0]}
-    </script>
-</body>
-</html>
-  `)
+  // Redirigir al formulario con parámetro para pre-llenar datos
+  return c.redirect(`/?pdf=${timestamp}`)
 })
 
 // API: Get PDF URL for a response (returns the data, frontend generates PDF)
@@ -747,6 +715,36 @@ app.get('/', (c) => {
 
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     <script>
+        // DETECCIÓN DE PARÁMETRO ?pdf=timestamp para generar PDF desde dashboard
+        const urlParams = new URLSearchParams(window.location.search)
+        const pdfTimestamp = urlParams.get('pdf')
+        
+        if (pdfTimestamp) {
+            // Cargar datos y generar PDF automáticamente
+            loadAndGeneratePDF(pdfTimestamp)
+        }
+        
+        async function loadAndGeneratePDF(timestamp) {
+            try {
+                // Ocultar formulario, mostrar mensaje de carga
+                document.getElementById('surveyForm').innerHTML = '<div class="text-center py-12"><div class="text-4xl mb-4">📄</div><h2 class="text-2xl font-bold text-gray-800 mb-4">Generando PDF...</h2><p class="text-gray-600">Un momento por favor</p></div>'
+                
+                // Fetch datos desde backend
+                const response = await axios.get('/api/pdf/' + timestamp)
+                const data = response.data
+                
+                // Generar PDF con el código BUENO
+                generatePDF(data)
+                
+                // Mostrar mensaje de éxito
+                document.getElementById('surveyForm').innerHTML = '<div class="text-center py-12"><div class="text-4xl mb-4">✅</div><h2 class="text-2xl font-bold text-gray-800 mb-4">PDF Generado</h2><p class="text-gray-600">El PDF se está descargando...</p><button onclick="window.close()" class="mt-6 px-6 py-3 bg-[#008080] text-white rounded-lg font-bold hover:bg-[#006666]">Cerrar Ventana</button></div>'
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error)
+                document.getElementById('surveyForm').innerHTML = '<div class="text-center py-12"><div class="text-4xl mb-4">❌</div><h2 class="text-2xl font-bold text-gray-800 mb-4">Error</h2><p class="text-gray-600">No se pudo generar el PDF</p><button onclick="window.close()" class="mt-6 px-6 py-3 bg-gray-500 text-white rounded-lg font-bold">Cerrar</button></div>'
+            }
+        }
+        
         let currentBlock = 1
         const totalBlocks = 4
         const totalQuestions = 18
