@@ -39,8 +39,11 @@ loadResponses()
 // Enable CORS
 app.use('/api/*', cors())
 
-// Serve dashboard
+// Serve dashboard with cache-busting headers
 app.get('/dashboard', (c) => {
+  c.header('Cache-Control', 'no-cache, no-store, must-revalidate')
+  c.header('Pragma', 'no-cache')
+  c.header('Expires', '0')
   return c.html(readFileSync('./dashboard.html', 'utf8'))
 })
 
