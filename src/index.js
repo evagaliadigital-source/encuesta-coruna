@@ -1096,12 +1096,22 @@ app.get('/', (c) => {
             yPos += 5
             addSection('OPCIONES SELECCIONADAS')
             
-            if (data.wantRaffle) {
-                drawBox(yPos - 4, 8, [230, 255, 230])
-                doc.setFontSize(10)
+            if (data.raffleNumber) {
+                drawBox(yPos - 4, 12, [230, 255, 230])
+                doc.setFontSize(11)
                 doc.setFont('helvetica', 'bold')
                 doc.setTextColor(0, 128, 0)
                 doc.text('PARTICIPA EN SORTEO - 8 diciembre 2025', margin + 3, yPos + 2)
+                doc.setFontSize(16)
+                doc.setTextColor(0, 100, 0)
+                doc.text('NUMERO DE SORTEO: #' + data.raffleNumber, margin + 3, yPos + 8)
+                yPos += 15
+            } else if (data.wantRaffle) {
+                drawBox(yPos - 4, 8, [255, 245, 230])
+                doc.setFontSize(10)
+                doc.setFont('helvetica', 'bold')
+                doc.setTextColor(200, 100, 0)
+                doc.text('Quiso participar (fuera de A Coruna)', margin + 3, yPos + 2)
                 yPos += 10
             }
             
