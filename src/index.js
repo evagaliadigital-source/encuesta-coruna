@@ -109,12 +109,15 @@ app.post('/api/submit-survey', async (c) => {
   
   const raffleNumber = participatesInRaffle ? nextRaffleNumber++ : null
   
-  // Store response
+  // Store response with separate opt-ins
   const response = {
     ...data,
     priority,
     participatesInRaffle,
     raffleNumber,
+    wantBeta: data.wantBeta || 'no',
+    wantRaffle: data.wantRaffle || 'no',
+    wantReport: data.wantReport || 'no',
     timestamp: new Date().toISOString()
   }
   
@@ -636,7 +639,34 @@ app.get('/', (c) => {
                             <p class="text-xs text-gray-500 mt-1">Este campo es opcional pero nos ayuda a conocerte mejor</p>
                         </div>
 
+                        <!-- Gestor (nuevo campo opcional para uso interno) -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-3">
+                                👤 Gestor asignado (opcional - uso interno)
+                            </label>
+                            <input type="text" 
+                                   name="gestor" 
+                                   class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#008080] focus:outline-none"
+                                   placeholder="Nombre del gestor que realiza el contacto">
+                            <p class="text-xs text-gray-500 mt-1">Campo opcional para tracking interno del equipo</p>
+                        </div>
+
                         <!-- Opt-ins Section -->
+
+                        <!-- Beta Program Opt-in -->
+                        <div class="mb-6 bg-gradient-to-r from-[#F3E5F5] to-[#FCE4EC] border-2 border-[#CE93D8] rounded-xl p-6">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="wantBeta" name="wantBeta" value="si" class="mt-1 mr-3 w-5 h-5 text-purple-600">
+                                <label for="wantBeta" class="cursor-pointer">
+                                    <span class="font-bold text-gray-800">✨ Quiero unirme al Programa Beta VIP</span>
+                                    <p class="text-sm text-gray-600 mt-1">Acceso anticipado a nuevas funcionalidades, soporte prioritario y condiciones especiales exclusivas</p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        💜 Programa limitado a 20 peluquerías • 
+                                        <a href="https://galiadigital.es/beta/" target="_blank" class="text-purple-600 underline hover:text-purple-800">Más información</a>
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
 
                         <!-- Sorteo Opt-in -->
                         <div class="mb-6 bg-gradient-to-r from-[#E6F2F2] to-[#EBF5F5] border-2 border-[#B3D9D9] rounded-xl p-6">
@@ -646,7 +676,7 @@ app.get('/', (c) => {
                                     <span class="font-bold text-gray-800">🎁 Quiero participar en el sorteo de A Coruña</span>
                                     <p class="text-sm text-gray-600 mt-1">Sorteo exclusivo: 1 año de Agenda Inteligente IA (Valor: 1.020€)</p>
                                     <p class="text-xs text-gray-500 mt-1">
-                                        📅 Fecha: 8 diciembre 2025 • Solo peluquerías de A Coruña • 
+                                        Solo peluquerías de A Coruña • 
                                         <a href="https://galiadigital.es/sorteo/" target="_blank" class="text-[#008080] underline hover:text-[#006666]">Ver bases legales</a>
                                     </p>
                                 </label>
@@ -711,19 +741,40 @@ app.get('/', (c) => {
                     <div class="text-6xl mb-4">🎉</div>
                     <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Gracias por participar!</h2>
                     <p class="text-gray-600 mb-4">Tu respuesta ha sido registrada correctamente</p>
-                    <div id="raffleInfo" class="hidden bg-gradient-to-r from-[#E6F2F2] to-[#EBF5F5] border-2 border-[#B3D9D9] rounded-xl p-6 mt-6">
-                        <div class="text-4xl mb-3">🎁</div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Sorteo Especial A Coruña!</h3>
-                        <p class="text-gray-600 mb-2">Participa y gana 1 año de Agenda Inteligente IA</p>
-                        <p class="text-[#008080] font-bold text-3xl mb-2">Tu número: <span id="raffleNumberDisplay"></span></p>
-                        <p class="text-[#008080] font-bold text-lg mb-2">Valor: 1.020€ (300€ setup + 720€ servicio anual)</p>
-                        <p class="text-gray-600">📅 Sorteo: 8 diciembre 2025</p>
+                    
+                    <!-- Beta VIP Info -->
+                    <div id="betaInfo" class="hidden bg-gradient-to-r from-[#F3E5F5] to-[#FCE4EC] border-2 border-[#CE93D8] rounded-xl p-6 mt-6">
+                        <div class="text-4xl mb-3">✨</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Bienvenida al Programa Beta VIP!</h3>
+                        <p class="text-gray-600 mb-2">Acceso anticipado a nuevas funcionalidades</p>
+                        <p class="text-purple-600 font-bold text-lg mb-2">Soporte prioritario y condiciones especiales exclusivas</p>
                         <p class="text-xs text-gray-500 mt-2">
-                            <a href="https://galiadigital.es/sorteo/" target="_blank" class="text-[#008080] underline hover:text-[#006666]">
-                                📋 Ver bases legales del sorteo
-                            </a>
+                            💜 Programa limitado a 20 peluquerías • 
+                            <a href="https://galiadigital.es/beta/" target="_blank" class="text-purple-600 underline hover:text-purple-800">Más información</a>
                         </p>
                     </div>
+                    
+                    <!-- Raffle Info -->
+                    <div id="raffleInfo" class="hidden bg-gradient-to-r from-[#E6F2F2] to-[#EBF5F5] border-2 border-[#B3D9D9] rounded-xl p-6 mt-6">
+                        <div class="text-4xl mb-3">🎁</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Participas en el sorteo por haber colaborado!</h3>
+                        <p class="text-gray-600 mb-2">Gana 1 año de Agenda Inteligente IA</p>
+                        <p class="text-[#008080] font-bold text-3xl mb-2">Tu número: <span id="raffleNumberDisplay"></span></p>
+                        <p class="text-[#008080] font-bold text-lg mb-2">Valor: 1.020€ (300€ setup + 720€ servicio anual)</p>
+                        <p class="text-xs text-gray-500 mt-2">
+                            Solo peluquerías de A Coruña • 
+                            <a href="https://galiadigital.es/sorteo/" target="_blank" class="text-[#008080] underline hover:text-[#006666]">Ver bases legales</a>
+                        </p>
+                    </div>
+                    
+                    <!-- Report Info -->
+                    <div id="reportInfo" class="hidden bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mt-6">
+                        <div class="text-4xl mb-3">📊</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Recibirás tu informe personalizado!</h3>
+                        <p class="text-gray-600 mb-2">Análisis basado en tus respuestas con recomendaciones específicas</p>
+                        <p class="text-blue-600 font-bold text-lg">Te lo enviaremos a tu email en los próximos días</p>
+                    </div>
+                    
                     <p class="text-gray-600 mt-6">¡Mucha suerte! 🍀</p>
                 </div>
             </div>
@@ -912,10 +963,20 @@ app.get('/', (c) => {
                 document.getElementById('surveyForm').classList.add('hidden')
                 document.getElementById('successMessage').classList.remove('hidden')
                 
+                // Show Beta info if applicable
+                if (data.wantBeta === 'si') {
+                    document.getElementById('betaInfo').classList.remove('hidden')
+                }
+                
                 // Show raffle info if applicable
                 if (response.data.raffleNumber) {
                     document.getElementById('raffleInfo').classList.remove('hidden')
                     document.getElementById('raffleNumberDisplay').textContent = '#' + response.data.raffleNumber
+                }
+                
+                // Show report info if applicable
+                if (data.wantReport === 'si') {
+                    document.getElementById('reportInfo').classList.remove('hidden')
                 }
                 
                 window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1111,17 +1172,26 @@ app.get('/', (c) => {
             yPos += 5
             addSection('OPCIONES SELECCIONADAS')
             
+            if (data.wantBeta === 'si') {
+                drawBox(yPos - 4, 8, [243, 229, 245])
+                doc.setFontSize(10)
+                doc.setFont('helvetica', 'bold')
+                doc.setTextColor(142, 36, 170)
+                doc.text('PROGRAMA BETA VIP', margin + 3, yPos + 2)
+                yPos += 10
+            }
+            
             if (data.raffleNumber) {
                 drawBox(yPos - 4, 12, [230, 255, 230])
                 doc.setFontSize(11)
                 doc.setFont('helvetica', 'bold')
                 doc.setTextColor(0, 128, 0)
-                doc.text('PARTICIPA EN SORTEO - 8 diciembre 2025', margin + 3, yPos + 2)
+                doc.text('PARTICIPA EN SORTEO A CORUNA', margin + 3, yPos + 2)
                 doc.setFontSize(16)
                 doc.setTextColor(0, 100, 0)
                 doc.text('NUMERO DE SORTEO: #' + data.raffleNumber, margin + 3, yPos + 8)
                 yPos += 15
-            } else if (data.wantRaffle) {
+            } else if (data.wantRaffle === 'si') {
                 drawBox(yPos - 4, 8, [255, 245, 230])
                 doc.setFontSize(10)
                 doc.setFont('helvetica', 'bold')
@@ -1130,7 +1200,7 @@ app.get('/', (c) => {
                 yPos += 10
             }
             
-            if (data.wantReport) {
+            if (data.wantReport === 'si') {
                 drawBox(yPos - 4, 8, [230, 240, 255])
                 doc.setFontSize(10)
                 doc.setFont('helvetica', 'bold')

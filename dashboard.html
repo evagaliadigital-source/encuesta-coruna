@@ -76,8 +76,8 @@
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Stats Cards - Row 1: Total + Priority -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <!-- Total Respuestas -->
             <div class="bg-white rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-4">
@@ -108,14 +108,47 @@
                 <div class="text-sm text-yellow-500 mt-2"><span id="warmPercent">0</span>% del total</div>
             </div>
 
+            <!-- COLD Leads -->
+            <div class="bg-green-50 border-2 border-green-200 rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-green-600 font-semibold">COLD Leads</div>
+                    <div class="text-3xl">🟢</div>
+                </div>
+                <div class="text-4xl font-bold text-green-600" id="coldLeads">0</div>
+                <div class="text-sm text-green-500 mt-2"><span id="coldPercent">0</span>% del total</div>
+            </div>
+        </div>
+
+        <!-- Stats Cards - Row 2: Opt-ins -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Beta VIP -->
+            <div class="bg-gradient-to-r from-[#F3E5F5] to-[#FCE4EC] border-2 border-[#CE93D8] rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-purple-600 font-semibold">Beta VIP</div>
+                    <div class="text-3xl">✨</div>
+                </div>
+                <div class="text-4xl font-bold text-purple-600" id="betaCount">0</div>
+                <div class="text-sm text-purple-500 mt-2">Inscritos programa piloto</div>
+            </div>
+
             <!-- Participantes Sorteo -->
             <div class="bg-[#E6F2F2] border-2 border-[#008080] rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="text-[#008080] font-semibold">Sorteo 8 Dic</div>
+                    <div class="text-[#008080] font-semibold">Sorteo A Coruña</div>
                     <div class="text-3xl">🎁</div>
                 </div>
                 <div class="text-4xl font-bold text-[#008080]" id="raffleParticipants">0</div>
                 <div class="text-sm text-[#008080] mt-2">Participantes inscritos</div>
+            </div>
+
+            <!-- Informe -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-blue-600 font-semibold">Informe</div>
+                    <div class="text-3xl">📊</div>
+                </div>
+                <div class="text-4xl font-bold text-blue-600" id="reportCount">0</div>
+                <div class="text-sm text-blue-500 mt-2">Solicitudes de informe</div>
             </div>
         </div>
 
@@ -202,16 +235,19 @@
                                 <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-200" onclick="sortTable('name')">Nombre</th>
                                 <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-200" onclick="sortTable('business')">Peluqueria</th>
                                 <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-200" onclick="sortTable('city')">Ciudad</th>
+                                <th class="px-4 py-3 text-left">Gestor</th>
                                 <th class="px-4 py-3 text-left">WhatsApp</th>
                                 <th class="px-4 py-3 text-left">Email</th>
-                                <th class="px-4 py-3 text-left">Precio</th>
+                                <th class="px-4 py-3 text-center">Beta</th>
+                                <th class="px-4 py-3 text-center">Sorteo</th>
+                                <th class="px-4 py-3 text-center">Informe</th>
                                 <th class="px-4 py-3 text-left">#Sorteo</th>
                                 <th class="px-4 py-3 text-left">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="responsesBody">
                             <tr>
-                                <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="12" class="px-4 py-8 text-center text-gray-500">
                                     Cargando datos...
                                 </td>
                             </tr>
@@ -226,20 +262,15 @@
             <div class="bg-gradient-to-r from-[#E6F2F2] to-[#F5F2FB] border-2 border-[#B3D9D9] rounded-xl shadow-lg p-8">
                 <div class="text-center mb-6">
                     <div class="text-5xl mb-3">🎁</div>
-                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Sorteo Agenda Inteligente IA</h3>
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Sorteo Agenda Inteligente IA - A Coruña</h3>
                     <p class="text-gray-600">Valor: 1.020€ (300€ setup + 720€ servicio anual)</p>
-                    <p class="text-sm text-gray-500 mt-2">Fecha sorteo: 8 diciembre 2025</p>
                 </div>
                 
                 <div class="bg-white rounded-lg p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
                         <div>
                             <p class="text-3xl font-bold text-[#008080]" id="raffleParticipants2">0</p>
                             <p class="text-sm text-gray-600">Participantes</p>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-bold text-gray-800">8 Dic</p>
-                            <p class="text-sm text-gray-600">Fecha del sorteo</p>
                         </div>
                         <div>
                             <p class="text-3xl font-bold text-green-600">1.020€</p>
@@ -278,17 +309,25 @@
                 allResponses = data.responses;
                 console.log('Total respuestas:', allResponses.length);
                 
+                // Calculate counts
+                const coldCount = data.responses.filter(r => r.priority === '🟢 COLD').length;
+                const betaCount = data.responses.filter(r => r.wantBeta === 'si').length;
+                const reportCount = data.responses.filter(r => r.wantReport === 'si').length;
+
                 // Update stats
                 document.getElementById('totalResponses').textContent = data.total;
                 document.getElementById('hotLeads').textContent = data.hot;
                 document.getElementById('warmLeads').textContent = data.warm;
+                document.getElementById('coldLeads').textContent = coldCount;
+                document.getElementById('betaCount').textContent = betaCount;
                 document.getElementById('raffleParticipants').textContent = data.raffleParticipants;
-                document.getElementById('raffleParticipants2').textContent = data.raffleParticipants;
+                document.getElementById('reportCount').textContent = reportCount;
                 
                 // Calculate percentages
                 if (data.total > 0) {
                     document.getElementById('hotPercent').textContent = Math.round((data.hot / data.total) * 100);
                     document.getElementById('warmPercent').textContent = Math.round((data.warm / data.total) * 100);
+                    document.getElementById('coldPercent').textContent = Math.round((coldCount / data.total) * 100);
                 }
                 
                 // Update charts
@@ -391,7 +430,7 @@
             document.getElementById('filteredCount').textContent = responses.length;
             
             if (responses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">No hay respuestas con estos filtros.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500">No hay respuestas con estos filtros.</td></tr>';
                 return;
             }
             
@@ -409,6 +448,9 @@
                     <td class="px-4 py-3 font-semibold">${r.p10}</td>
                     <td class="px-4 py-3">${r.p11}</td>
                     <td class="px-4 py-3">${r.p14}</td>
+                    <td class="px-4 py-3 text-sm ${r.gestor ? 'font-semibold text-purple-700' : 'text-gray-400'}">
+                        ${r.gestor || '-'}
+                    </td>
                     <td class="px-4 py-3">
                         <a href="https://wa.me/${r.p12.replace(/[^0-9]/g, '')}" target="_blank" class="text-green-600 hover:text-green-800">
                             ${r.p12}
@@ -419,7 +461,15 @@
                             ${r.p13}
                         </a>
                     </td>
-                    <td class="px-4 py-3 text-sm">${r.p18_precio || 'N/A'}</td>
+                    <td class="px-4 py-3 text-center">
+                        ${r.wantBeta === 'si' ? '<span class="text-2xl">✨</span>' : '<span class="text-gray-300">-</span>'}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        ${r.wantRaffle === 'si' ? '<span class="text-2xl">🎁</span>' : '<span class="text-gray-300">-</span>'}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        ${r.wantReport === 'si' ? '<span class="text-2xl">📊</span>' : '<span class="text-gray-300">-</span>'}
+                    </td>
                     <td class="px-4 py-3 font-bold ${r.raffleNumber ? 'text-[#008080]' : 'text-gray-400'}">
                         ${r.raffleNumber ? '#' + r.raffleNumber : '-'}
                     </td>
@@ -948,8 +998,8 @@
                 doc.setFont('helvetica', 'bold')
                 doc.setTextColor(0, 128, 0)
                 const raffleText = data.raffleNumber 
-                    ? `PARTICIPA EN SORTEO - Numero ${data.raffleNumber} - 8 diciembre 2025`
-                    : 'PARTICIPA EN SORTEO - 8 diciembre 2025'
+                    ? `PARTICIPA EN SORTEO A CORUNA - Numero ${data.raffleNumber}`
+                    : 'PARTICIPA EN SORTEO A CORUNA'
                 doc.text(raffleText, margin + 3, yPos + 2)
                 yPos += 10
             }
